@@ -32,6 +32,7 @@ underlying unlearning algorithm.
     - `pgd` — Projected Gradient Ascent (Halimi et al., 2022).
     - `sga_ewc` — Stochastic Gradient Ascent + EWC (Wu et al., 2022).
     - `fedosd` — FedOSD core (Pan et al., 2025).
+      
   EFU is agnostic to this choice, so any baseline can be run plain or wrapped by
   the FE aggregation (the paper's `EFU_PGD`, `EFU_SGA-EWC` rows).
 - **`naive_unlearn/`** — Full Retrain baseline (retrain without the erased data).
