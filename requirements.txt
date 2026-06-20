@@ -1,0 +1,11 @@
+torch>=2.0
+torchvision>=0.15
+torchmetrics
+transformers
+opacus
+scikit-learn
+numpy
+# DMCFE backend (modules/mife):
+pycryptodome
+gmpy2
+fastecdsa

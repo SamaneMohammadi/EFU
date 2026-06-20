@@ -1,0 +1,204 @@
+# PyMIFE : Functional Encryption in Python
+
+Multi-Input Functional Encryption (MIFE) library for Python.
+
+## Installation
+
+First install all necessary Ubuntu packages by running:
+
+```bash
+chmod +x ./setup.sh && ./setup.sh
+```
+
+Next, you can install the ``mife` package via pip as:
+```bash
+pip install .
+```
+
+## Schemes
+
+> **_NOTE:_**  The implementation of these schemes are not fully optimized and not peer-reviewed, recommended to only use for research / testing purpose.
+
+### Single input inner product
+1. (Selective Secure) DDH based scheme from https://eprint.iacr.org/2015/017.pdf
+2. (Selective Secure) LWE based scheme from https://eprint.iacr.org/2015/017.pdf
+3. (Adaptive Secure) Damgard based scheme from https://eprint.iacr.org/2015/608.pdf
+
+### Multi input inner product
+1. (Adaptive Secure) Damgard based scheme from https://eprint.iacr.org/2017/972.pdf
+
+### Multi client inner product 
+1. (Adaptive Secure with Random Oracle) DDH based scheme from https://eprint.iacr.org/2017/989.pdf
+
+## Usage
+
+### Single input inner product
+
+#### DDH based scheme
+
+```python
+from mife import FeDDH
+
+n = 10
+x = [i for i in range(n)]
+y = [i + 10 for i in range(n)]
+key = FeDDH.generate(n)
+c = FeDDH.encrypt(x, key)
+sk = FeDDH.keygen(y, key)
+m = FeDDH.decrypt(c, key.get_public_key(), sk, (0, 1000))
+```
+
+#### LWE based scheme
+
+```python
+from mife import FeLWE
+
+n = 10
+x = [i - 10 for i in range(n)]
+y = [i for i in range(n)]
+key = FeLWE.generate(n, 4, 4)
+c = FeLWE.encrypt(x, key)
+sk = FeLWE.keygen(y, key)
+m = FeLWE.decrypt(c, key.get_public_key(), sk) % key.p
+```
+
+#### Damgard based scheme
+
+```python
+from mife import FeDamgard
+
+n = 10
+x = [i for i in range(n)]
+y = [i + 10 for i in range(n)]
+key = FeDamgard.generate(n)
+c = FeDamgard.encrypt(x, key)
+sk = FeDamgard.keygen(y, key)
+m = FeDamgard.decrypt(c, key.get_public_key(), sk, (0, 1000))
+```
+
+### Multi input inner product
+
+#### Damgard based scheme
+
+```python
+from mife import FeDamgardMulti
+
+n = 3
+m = 5
+x = [[i + j for j in range(m)] for i in range(n)]
+y = [[i - j + 10 for j in range(m)] for i in range(n)]
+key = FeDamgardMulti.generate(n, m)
+cs = [FeDamgardMulti.encrypt(x[i], key.get_enc_key(i)) for i in range(n)]
+sk = FeDamgardMulti.keygen(y, key)
+m = FeDamgardMulti.decrypt(cs, key.get_public_key(), sk, (0, 2000))
+```
+
+Using Curve25519
+
+```python
+from mife import FeDamgardMulti
+from mife import Curve25519
+
+n = 25
+m = 25
+x = [[i * 10 + j for j in range(m)] for i in range(n)]
+y = [[i - j - 5 for j in range(m)] for i in range(n)]
+key = FeDamgardMulti.generate(n, m, Curve25519)
+cs = [FeDamgardMulti.encrypt(x[i], key.get_enc_key(i)) for i in range(n)]
+sk = FeDamgardMulti.keygen(y, key)
+res = FeDamgardMulti.decrypt(cs, key.get_public_key(), sk, (-10000000, 10000000))
+```
+
+Using P256 from fastecdsa
+
+```python
+from mife import FeDamgardMulti
+from mifer import WrapCurve
+from fastecdsa.curve import P256
+
+n = 25
+m = 25
+x = [[i * 10 + j for j in range(m)] for i in range(n)]
+y = [[i - j - 5 for j in range(m)] for i in range(n)]
+key = FeDamgardMulti.generate(n, m, WrapCurve(P256))
+cs = [FeDamgardMulti.encrypt(x[i], key.get_enc_key(i)) for i in range(n)]
+sk = FeDamgardMulti.keygen(y, key)
+res = FeDamgardMulti.decrypt(cs, key.get_public_key(), sk, (-10000000, 10000000))
+```
+
+
+### Multi client inner product
+
+#### DDH based scheme
+
+```python
+from mife import FeDDHMultiClient
+
+n = 3
+m = 5
+x = [[i + j for j in range(m)] for i in range(n)]
+y = [[i - j + 10 for j in range(m)] for i in range(n)]
+tag = b"testingtag123"
+key = FeDDHMultiClient.generate(n, m)
+cs = [FeDDHMultiClient.encrypt(x[i], tag, key.get_enc_key(i)) for i in range(n)]
+sk = FeDDHMultiClient.keygen(y, key)
+m = FeDDHMultiClient.decrypt(cs, tag, key.get_public_key(), sk, (0, 2000))
+```
+
+##### Export Keys
+
+```python
+from mife import FeDDHMultiClient
+import json
+
+n = 3
+m = 5
+x = [[i + j for j in range(m)] for i in range(n)]
+y = [[i - j + 10 for j in range(m)] for i in range(n)]
+tag = b"testingtag123"
+key = FeDDHMultiClient.generate(n, m)
+cs = [FeDDHMultiClient.encrypt(x[i], tag, key.get_enc_key(i)) for i in range(n)]
+sk = FeDDHMultiClient.keygen(y, key)
+print(f"enc_key = {json.dumps([key.get_enc_key(i).export() for i in range(n)])}")
+print(f"msk = {json.dumps(key.export())}")
+print(f"ct = {[json.dumps(cs[i].export()) for i in range(n)]}")
+print(f"secret_key = {json.dumps(sk.export())}")
+print(f"pub_key = {json.dumps(key.get_public_key().export())}")
+```
+
+
+## Customize
+
+All of the DDH and Damgard schemes support custom group. You can implement your own group class by extending `/src/mife/data/group.py` as base class.
+
+To use custom group, simply pass the group class to the `generate` function.
+
+This library has implemented prime order group and curve25519 group.
+
+For MCFE-DDH scheme, you can also supply your own hash function by using the same signature as the default hash function found in `/src/mife/multiclient/ddh.py`.
+
+## References
+
+- https://eprint.iacr.org/2015/017.pdf
+- https://eprint.iacr.org/2015/608.pdf
+- https://eprint.iacr.org/2017/972.pdf
+- https://eprint.iacr.org/2017/989.pdf
+- https://github.com/fentec-project/CiFEr/blob/master/src/innerprod/simple/lwe.cr2html
+
+## Customize
+
+All of the DDH and Damgard schemes support custom group. You can implement your own group class by extending `/src/mife/data/group.py` as base class.
+
+To use custom group, simply pass the group class to the `generate` function.
+
+This library has implemented prime order group and curve25519 group.
+
+For MCFE-DDH scheme, you can also supply your own hash function by using the same signature as the default hash function found in `/src/mife/multiclient/ddh.py`.
+
+## References
+
+- https://eprint.iacr.org/2015/017.pdf
+- https://eprint.iacr.org/2015/608.pdf
+- https://eprint.iacr.org/2017/972.pdf
+- https://eprint.iacr.org/2017/989.pdf
+- https://github.com/fentec-project/CiFEr/blob/master/src/innerprod/simple/lwe.c
