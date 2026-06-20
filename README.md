@@ -72,10 +72,11 @@ encrypted centroids.
 @inproceedings{mohammadi2025efu,
   title={EFU: Enforcing Federated Unlearning via Functional Encryption},
   author={Mohammadi, Samaneh and Tsouvalas, Vasileios and Symeonidis, Iraklis and Balador, Ali and Ozcelebi, Tanir and Flammini, Francesco and Meratnia, Nirvana},
-  booktitle={Proceedings of the 34th ACM International Conference on Information and Knowledge Management (CIKM '25)},
-  year={2025},
-  doi={10.1145/3746252.3761091}
+  booktitle={Proceedings of the 34th ACM International Conference on Information and Knowledge Management},
+  pages={2148--2158},
+  year={2025}
 }
+
 ```
 
 ## License
