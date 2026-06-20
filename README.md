@@ -1,9 +1,6 @@
-# EFU
+# EFU: Enforcing Federated Unlearning via Functional Encryption
 
-Implementation of **EFU: Enforcing Federated Unlearning via Functional
-Encryption** (CIKM '25).
-
-📄 Paper: [CIKM '25 (ACM DL)](https://doi.org/10.1145/3746252.3761091) · [arXiv:2508.07873](https://arxiv.org/abs/2508.07873)
+📄 Paper: [CIKM '25](https://doi.org/10.1145/3746252.3761091) · [arXiv:2508.07873](https://arxiv.org/abs/2508.07873)
 
 Federated unlearning lets clients exercise their "right to be forgotten" by
 removing the influence of their data from a collaboratively trained model.
